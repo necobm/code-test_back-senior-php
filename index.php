@@ -10,12 +10,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
-// Datos estáticos que modelan los resultados de la consulta GraphQL
-$users = [
-    1 => ["id" => 1, "name" => "Sergio Palma", "ip" => "188.223.227.125"],
-    2 => ["id" => 2, "name" => "Manolo Engracia", "ip" => "194.191.232.168"],
-    3 => ["id" => 3, "name" => "Fito Cabrales", "ip" => "77.162.109.160"]
-];
+$userFactory = new \App\Factory\UserFactory();
+
+$users = $userFactory->generate();
 
 // Definimos el schema del tipo de dato "Usuario" para GraphQL
 $graphql_user_type = new ObjectType([
@@ -30,6 +27,7 @@ $graphql_user_type = new ObjectType([
 // Instanciamos la aplicación Slim. Es tan sencilla que sólo vamos a usar aquí
 // la ruta "/graphql" para este test. Todo lo demás es por defecto.
 $app = new Slim\App();
+
 $app->map(["GET", "POST"], "/graphql", function(Request $request, Response $response) {
     global $users, $graphql_user_type;
     $debug = \GraphQL\Error\Debug::INCLUDE_DEBUG_MESSAGE | \GraphQL\Error\Debug::INCLUDE_TRACE;
