@@ -10,9 +10,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
-$userFactory = new \App\Factory\UserFactory();
+$userRepository = new \App\Repository\UserRepository();
 
-$users = $userFactory->generate();
+$users = $userRepository->findAll();
 
 // Definimos el schema del tipo de dato "Usuario" para GraphQL
 $graphql_user_type = new ObjectType([
@@ -20,7 +20,8 @@ $graphql_user_type = new ObjectType([
     "fields" => [
         "id" => Type::int(),
         "name" => Type::string(),
-        "ip" => Type::string()
+        "ip" => Type::string(),
+        "ip_region" => Type::string()
     ]
 ]);
 
