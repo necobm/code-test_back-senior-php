@@ -2,6 +2,7 @@
 
 namespace App\Command\Geolocation;
 
+use App\Repository\UserRepository;
 use App\Services\GeolocationService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -17,11 +18,13 @@ class UpdateUsersLocationCommand extends Command
 {
     protected static $defaultDescription = 'Update users locations from their IPs';
     private GeolocationService $geolocationService;
+    private UserRepository $userRepository;
 
     public function __construct(string $name = null)
     {
         parent::__construct($name);
         $this->geolocationService = new GeolocationService();
+        $this->userRepository = new UserRepository();
     }
 
     protected function configure()
@@ -31,7 +34,23 @@ class UpdateUsersLocationCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln($this->geolocationService->getLocationFromIp(["77.162.109.160"]));
+        $ipAddresses = $this->userRepository->getFieldValueFromAllUsers('ip') ?? [];
+
+        $output->writeln("Querying IP-API to retrieve locations from users IPs...");
+
+        $locations = $this->geolocationService->getLocationFromIp(array_values($ipAddresses));
+
+        $users = $this->userRepository->findAll();
+
+        if( !empty($users) ){
+            foreach ($users as $key => $user){
+                $users[$key]['ip_region'] = $locations[ $user['ip'] ];
+            }
+        }
+
+        $this->userRepository->persist($users);
+
+        $output->writeln("Users locations updates successfully");
 
         return Command::SUCCESS;
     }
