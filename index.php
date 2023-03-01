@@ -9,8 +9,10 @@ use Psr\Http\Message\ResponseInterface as Response;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use App\Repository\UserRepository;
 
-$userRepository = new \App\Repository\UserRepository();
+$userRepository = new UserRepository();
+$geolocationService = new \App\Services\GeolocationService();
 
 $users = $userRepository->findAll();
 
@@ -30,7 +32,7 @@ $graphql_user_type = new ObjectType([
 $app = new Slim\App();
 
 $app->map(["GET", "POST"], "/graphql", function(Request $request, Response $response) {
-    global $users, $graphql_user_type;
+    global $users, $graphql_user_type, $geolocationService, $userRepository;
     $debug = \GraphQL\Error\Debug::INCLUDE_DEBUG_MESSAGE | \GraphQL\Error\Debug::INCLUDE_TRACE;
     try {
         $graphQLServer = new \GraphQL\Server\StandardServer([
@@ -43,10 +45,23 @@ $app->map(["GET", "POST"], "/graphql", function(Request $request, Response $resp
                             "args" => [
                                 "id" => Type::nonNull(Type::int())
                             ],
-                            "resolve" => function ($rootValue, $args) use ($users) {
-                                return isset($users[intval($args["id"])])
-                                    ? $users[intval($args["id"])]
-                                    : null;
+                            "resolve" => function ($rootValue, $args) use ($users, $geolocationService, $userRepository) {
+                                $user = $users[intval($args["id"])] ?? null;
+                                if (!is_null($user) && empty($user['ip_region'])){
+
+                                    try {
+                                        $location = $geolocationService->getLocationFromIp([$user['ip']]);
+                                        if(!empty($location)){
+                                            $user['ip_region'] = $location[$user['ip']];
+                                        }
+                                        $userRepository->update(intval($args["id"]), $user);
+                                    }
+                                    catch (Exception $exception){
+                                        return $user;
+                                    }
+
+                                }
+                                return $user;
                             }
                         ],
                         "users" => [

@@ -49,4 +49,14 @@ class UserRepository
         fclose($fileHandler);
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function update(int $id, array $data): void
+    {
+        $users = $this->findAll();
+        $users[$id] = $data;
+        $this->persist($users);
+    }
+
 }
