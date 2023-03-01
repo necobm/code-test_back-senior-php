@@ -54,7 +54,10 @@ class GeolocationService
         $data = $response->toArray();
         $locations = [];
         foreach ($data as $d) {
-            $locations[$d['query']] = $d['city'] . ', ' . $d['regionName'] . ', ' . $d['country'];
+            if($d['status'] === 'success' && !empty($d['query'])){
+                $locations[$d['query']] = $d['city'] . ', ' . $d['regionName'] . ', ' . $d['country'];
+            }
+
         }
 
         return $locations;

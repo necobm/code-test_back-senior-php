@@ -2,29 +2,22 @@
 
 namespace App\Repository;
 
-class UserRepository
+final class UserRepository extends BaseRepository
 {
-    private $resourcesDir = __DIR__ . '/../../resources/db/users.json';
-    public function findAll(): ?array
+    public function __construct()
     {
-        $usersData = file_get_contents($this->resourcesDir);
-        if($usersData !== false){
-            return json_decode($usersData, true);
-        }
+        $this->resourcesDir = __DIR__ . '/../../resources/db/users.json';
     }
 
-    public function findOneById(int $id): ?array
-    {
-        $userData = $this->findAll();
-        if( empty($userData) || !isset($userData[$id]) ){
-            return null;
-        }
-        return $userData[$id];
-
-    }
-
+    /**
+     * @throws \Exception
+     */
     public function getFieldValueFromAllUsers(string $fieldName): ?array
     {
+        if( !$this->isValidResourcesDir() ){
+            throw new \Exception("Wrong data file");
+        }
+
         $userData = $this->findAll();
         if( empty($userData) ){
             return null;
@@ -33,30 +26,6 @@ class UserRepository
         return array_map(function ($item) use ($fieldName){
             return $item[$fieldName] ?? null;
         }, $userData);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function persist(array $users): void
-    {
-        if(empty($users)){
-            throw new \Exception("You cannot persist empty data, you may loose all your data by accident");
-        }
-        $fileHandler = fopen($this->resourcesDir, 'w');
-
-        fwrite($fileHandler, json_encode($users));
-        fclose($fileHandler);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function update(int $id, array $data): void
-    {
-        $users = $this->findAll();
-        $users[$id] = $data;
-        $this->persist($users);
     }
 
 }
