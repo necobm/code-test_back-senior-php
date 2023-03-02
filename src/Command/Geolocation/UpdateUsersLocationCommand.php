@@ -35,7 +35,7 @@ class UpdateUsersLocationCommand extends Command
         $this->setHelp("Retrieves and update users locations from ip-api.com API given users IPs");
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) //TODO: Take in account when there are new users
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $usersIpMap = [];
         $ipAddresses = $this->userRepository->getFieldValueFromAllUsers('ip') ?? [];
@@ -52,6 +52,8 @@ class UpdateUsersLocationCommand extends Command
                 return null;
             }
         }, $lastIpUpdated);
+
+        $ipAddresses = array_merge($ipAddresses, $this->getUsersIpToAdd($users, $usersIpMap));
 
         if(empty($usersIpMap)){
             $output->writeln("No IP has changed since last update. Skipping...");
@@ -75,5 +77,22 @@ class UpdateUsersLocationCommand extends Command
         }
 
         return Command::FAILURE;
+    }
+
+    /**
+     * Get IPs from users who doesn't have location set and they never have been updated their location before (new users)
+     * @param array $users
+     * @param array $usersIpMap
+     * @return array
+     */
+    private function getUsersIpToAdd(array $users, array &$usersIpMap): array
+    {
+        return array_map(function ($user) use (&$usersIpMap){
+            if( empty( $user['ip_region'] )){
+                $usersIpMap[$user['ip']] = $user['id'];
+                return $user['ip'];
+            }
+            else return null;
+        }, $users);
     }
 }
