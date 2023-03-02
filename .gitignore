@@ -1,3 +1,4 @@
 vendor
 .idea
 resources/db/
+resources/db_test/

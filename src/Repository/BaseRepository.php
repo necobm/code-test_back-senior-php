@@ -8,7 +8,7 @@ class BaseRepository
 
     protected function isValidResourcesDir(): bool
     {
-        return $this->resourcesDir !== __DIR__;
+        return ($this->resourcesDir !== __DIR__ && file_exists($this->resourcesDir));
     }
 
     /**
@@ -24,10 +24,15 @@ class BaseRepository
         if($data !== false){
             return json_decode($data, true);
         }
+        return null;
     }
 
     public function findOneById(int $id): ?array
     {
+        if( !$this->isValidResourcesDir() ){
+            throw new \Exception("Wrong data file");
+        }
+
         $data = $this->findAll();
         if( empty($data) || !isset($data[$id]) ){
             return null;
@@ -41,6 +46,10 @@ class BaseRepository
      */
     public function persist(array $records): void
     {
+        if( !$this->isValidResourcesDir() ){
+            throw new \Exception("Wrong data file");
+        }
+
         if(empty($records)){
             throw new \Exception("You cannot persist empty data, you may loose all your data by accident");
         }
@@ -55,10 +64,20 @@ class BaseRepository
      */
     public function update(int $id, array $data): void
     {
+        if( !$this->isValidResourcesDir() ){
+            throw new \Exception("Wrong data file");
+        }
+
+        if(empty($data)){
+            throw new \Exception("WARNING, you are updating a record with empty data");
+        }
         $records = $this->findAll();
+
+        if(!array_key_exists(strval($id), $records)){
+            throw new \Exception("The given id doesn't exist");
+        }
+
         $records[$id] = $data;
         $this->persist($records);
     }
-
-
 }
