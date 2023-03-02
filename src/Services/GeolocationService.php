@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Service to handle ip-api request to get data related with IP Address. See https://ip-api.com/ for more details
+ */
+
 namespace App\Services;
 
 use Symfony\Component\HttpClient\HttpClient;
@@ -25,12 +29,13 @@ class GeolocationService
     }
 
     /**
+     * Request ip-api endpoint to get locations from a given list of IP addresses
+     *
      * @throws TransportExceptionInterface
      * @throws ServerExceptionInterface
      * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
      * @throws ClientExceptionInterface
-     * @throws \Exception
+     * @throws \Exception|DecodingExceptionInterface
      */
     public function getLocationFromIp(array $ipAddress): array
     {
@@ -49,6 +54,17 @@ class GeolocationService
         return $this->extractLocationFromResponse($response);
     }
 
+    /**
+     * Extract only locations related parameters from the response and return they as array format
+     *
+     * @param ResponseInterface $response
+     * @return array
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
     private function extractLocationFromResponse(ResponseInterface $response): array
     {
         $data = $response->toArray();

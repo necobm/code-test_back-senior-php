@@ -10,9 +10,10 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use App\Repository\UserRepository;
+use App\Services\GeolocationService;
 
 $userRepository = new UserRepository();
-$geolocationService = new \App\Services\GeolocationService();
+$geolocationService = new GeolocationService();
 
 $users = $userRepository->findAll();
 
@@ -47,8 +48,9 @@ $app->map(["GET", "POST"], "/graphql", function(Request $request, Response $resp
                             ],
                             "resolve" => function ($rootValue, $args) use ($users, $geolocationService, $userRepository) {
                                 $user = $users[intval($args["id"])] ?? null;
+                                // Just in case the user requested doesn't have yet its region from its IP, we get it
+                                // on the fly before returning the user
                                 if (!is_null($user) && empty($user['ip_region'])){
-
                                     try {
                                         $location = $geolocationService->getLocationFromIp([$user['ip']]);
                                         if(!empty($location)){
@@ -57,6 +59,7 @@ $app->map(["GET", "POST"], "/graphql", function(Request $request, Response $resp
                                         $userRepository->update(intval($args["id"]), $user);
                                     }
                                     catch (Exception $exception){
+                                        // Return original user in case of Exception from the API, in order to ALWAYS deliver the user data
                                         return $user;
                                     }
 
