@@ -2,7 +2,7 @@
 
 echo "Creating datasource files..."
 
-mkdir resources/db && mkdir resources/db_test && touch resources/db/users.json && touch resources/db/users_ip.json
+mkdir -p resources/db && mkdir -p resources/db_test && touch resources/db/users.json && touch resources/db/users_ip.json
 
 echo '{"1":{"id":1,"name":"Sergio Palma","ip":"83.223.227.125","ip_region":""},"2":{"id":2,"name":"Manolo Engracia","ip":"181.191.232.168","ip_region":""},"3":{"id":3,"name":"Fito Cabrales","ip":"77.162.109.160","ip_region":""},"4":{"id":4,"name":"Paco Lopez","ip":"120.90.101.160","ip_region":""},"5":{"id":5,"name":"Esther Fuentes","ip":"90.90.101.160","ip_region":""}}' | tee resources/db/users.json > /dev/null
 
