@@ -78,4 +78,22 @@ class GeolocationService
 
         return $locations;
     }
+
+    /**
+     * @return HttpClientInterface
+     */
+    public function getClient(): HttpClientInterface
+    {
+        return $this->client;
+    }
+
+    /**
+     * @param HttpClientInterface $client
+     */
+    public function setClient(HttpClientInterface $client): void
+    {
+        $this->client = $client;
+    }
+
+
 }
