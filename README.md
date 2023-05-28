@@ -1,23 +1,11 @@
-# Prueba de PHP: Ampliar un servidor GraphQL
+# Prueba de implementación de un servidor GraphQL con Symfony 6
 
-Tenemos un API GraphQL que nos devuelve los usuarios que tenemos en la BBDD pero se nos ha olvidado adjuntar la región donde viven estos usuarios mediante la IP que tenemos almacenada.
-
-## Requisitos principales:
-
-- Ampliar la respuesta del API GraphQL para añadir un campo "ip_region" de tipo string al modelo usuario.
-- Este campo "ip_region" debe incluir la geolocalización de cada usuario a partir de su IP. Ejemplo: "Majadahonda, Madrid - (Spain)".
-- Hay ciertas pistas de cómo queremos resolver esta prueba, búscalas. ;-)
-
-## Requisitos alternativos (¡¡Extra puntos!!):
-
-- Hay varias alternativas a cómo implementarlo en este test. Sé creativo y si se te ocurren varias intenta explicarlas brevemente.
-- Extra Kudos si implementas Unit Tests...
+API GraphQL para realizar gestión de usuarios y obtención automática de su región mediante la IP.
 
 ## Requisitos del sistema
 
 - PHP 8.1
 - No es necesaria base de datos
-- Composer: se puede obtener desde https://getcomposer.org
 
 ## Ejecutar la aplicación
 
